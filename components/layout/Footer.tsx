@@ -7,8 +7,8 @@ import { SystemClock } from "@/components/ui/SystemClock";
 import { Container } from "./Container";
 
 const footerLinks = [
-  { name: "GitHub", href: siteConfig.author.github },
-  { name: "LinkedIn", href: siteConfig.author.linkedin },
+  { name: "GitHub", href: siteConfig.author.github, label: "GitHub" },
+  { name: "LinkedIn", href: siteConfig.author.linkedin, label: "LinkedIn" },
   { name: "Email", href: `mailto:${siteConfig.author.email}`, label: siteConfig.author.email },
 ] as const;
 
@@ -39,7 +39,7 @@ export function Footer() {
                 className="flex items-center gap-1.5 font-data text-xs text-muted-foreground transition-colors hover:text-accent"
               >
                 {LinkIcon && <Icon icon={LinkIcon} size={14} />}
-                {link.label ?? link.name}
+                {link.label}
               </Link>
             );
           })}
