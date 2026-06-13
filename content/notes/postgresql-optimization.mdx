@@ -1,0 +1,30 @@
+---
+title: "PostgreSQL Optimization"
+description: "Indexing strategies and query planning for production workloads."
+date: "2025-04-15"
+published: true
+---
+
+## Index Strategy
+
+Index columns used in `WHERE`, `JOIN`, and `ORDER BY`. Use composite indexes for multi-column queries — column order matters.
+
+## EXPLAIN ANALYZE
+
+Always run `EXPLAIN (ANALYZE, BUFFERS)` on slow queries. Look for sequential scans on large tables.
+
+## Connection Pooling
+
+Use PgBouncer or application-level pooling. Never exceed `max_connections`.
+
+## Vacuum and Analyze
+
+Ensure autovacuum is running. Stale statistics lead to bad query plans.
+
+## Partial Indexes
+
+For queries filtering on a subset of rows:
+
+```sql
+CREATE INDEX idx_active_users ON users (email) WHERE status = 'active';
+```

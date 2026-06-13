@@ -1,0 +1,55 @@
+---
+title: "Graceful Shutdown Patterns in Golang Services"
+description: "Implementing clean shutdowns that drain in-flight requests and close resources properly."
+date: "2025-04-28"
+category: "Golang"
+published: true
+---
+
+Production services must handle SIGTERM gracefully. Kubernetes sends SIGTERM before killing pods — you have ~30 seconds to finish in-flight work.
+
+## The Pattern
+
+```go
+func main() {
+    srv := &http.Server{Addr: ":8080", Handler: router}
+    
+    go func() {
+        if err := srv.ListenAndServe(); err != http.ErrServerClosed {
+            log.Fatal(err)
+        }
+    }()
+
+    quit := make(chan os.Signal, 1)
+    signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+    <-quit
+
+    ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+    defer cancel()
+
+    if err := srv.Shutdown(ctx); err != nil {
+        log.Fatal("forced shutdown:", err)
+    }
+}
+```
+
+## What to Close
+
+During shutdown, ensure you close:
+
+1. HTTP server (drain in-flight requests)
+2. Database connection pools
+3. Redis connections
+4. Background worker goroutines
+5. Message queue consumers
+
+## Health Checks
+
+Configure readiness probes to fail immediately on SIGTERM. This removes the pod from the load balancer before shutdown begins, preventing new requests from arriving.
+
+## Key Takeaways
+
+- Always use `http.Server.Shutdown()` with a timeout
+- Close database pools explicitly
+- Fail readiness probes on shutdown signal
+- Log shutdown duration for observability

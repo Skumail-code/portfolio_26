@@ -1,0 +1,30 @@
+---
+title: "Caching"
+description: "Redis patterns and cache invalidation strategies."
+date: "2025-03-20"
+published: true
+---
+
+## Cache-Aside Pattern
+
+Application checks cache first, falls back to database, populates cache on miss.
+
+## TTL Strategy
+
+Set TTLs based on data freshness requirements. User profiles: 5-15 min. Static config: 1 hour+.
+
+## Invalidation
+
+Invalidate on write, not on read. Use cache tags for related data invalidation.
+
+## When Not to Cache
+
+- Financial balances (always read from source of truth)
+- Real-time inventory counts
+- Data with strict consistency requirements
+
+## Redis Patterns
+
+- `SET key value EX 300` for simple TTL caching
+- Hash structures for object caching
+- Sorted sets for leaderboards and rankings

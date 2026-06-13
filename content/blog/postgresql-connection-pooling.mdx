@@ -1,0 +1,42 @@
+---
+title: "Connection Pooling in Production PostgreSQL"
+description: "How to size connection pools, avoid connection exhaustion, and maintain throughput under load."
+date: "2025-05-12"
+category: "PostgreSQL"
+published: true
+---
+
+Every production PostgreSQL deployment eventually hits the connection limit. Understanding connection pooling is not optional — it's foundational infrastructure.
+
+## The Problem
+
+PostgreSQL creates a new process for each connection. At scale, thousands of concurrent connections lead to memory pressure and context switching overhead. Most applications don't need a dedicated connection per request.
+
+## PgBouncer vs Application-Level Pooling
+
+**PgBouncer** sits between your application and PostgreSQL, multiplexing connections efficiently. It's the standard for high-throughput deployments.
+
+For Golang services, `pgxpool` provides application-level pooling:
+
+```go
+config, _ := pgxpool.ParseConfig(databaseURL)
+config.MaxConns = 25
+config.MinConns = 5
+config.MaxConnLifetime = time.Hour
+config.MaxConnIdleTime = 30 * time.Minute
+
+pool, _ := pgxpool.NewWithConfig(ctx, config)
+```
+
+## Sizing Your Pool
+
+A common formula: `connections = ((core_count * 2) + effective_spindle_count)`
+
+For a 4-core machine with SSD: start with 10-20 connections per service instance. Monitor `pg_stat_activity` and adjust based on actual wait times.
+
+## Key Takeaways
+
+- Never open a new connection per request
+- Set `MaxConnLifetime` to prevent stale connections
+- Monitor pool saturation metrics
+- Use transaction pooling mode in PgBouncer for most web workloads

@@ -1,0 +1,24 @@
+---
+title: "Authentication"
+description: "JWT vs session tokens and securing backend services."
+date: "2025-04-01"
+published: true
+---
+
+## Access + Refresh Tokens
+
+Short-lived access tokens (15 min) with long-lived refresh tokens (7 days). Store refresh tokens hashed in the database.
+
+## JWT Best Practices
+
+- Sign with RS256, not HS256 in distributed systems
+- Include minimal claims: `sub`, `exp`, `iat`
+- Never store sensitive data in JWT payload
+
+## Session Invalidation
+
+Maintain a token blacklist or version number per user. Increment on password change to invalidate all sessions.
+
+## API Key Authentication
+
+For service-to-service: use API keys with scoped permissions and rotation policies.

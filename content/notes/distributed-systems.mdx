@@ -1,0 +1,26 @@
+---
+title: "Distributed Systems"
+description: "Consistency models and fault tolerance patterns."
+date: "2025-03-01"
+published: true
+---
+
+## CAP Theorem
+
+In network partitions, choose between consistency and availability. Most web services choose availability with eventual consistency.
+
+## Saga Pattern
+
+For distributed transactions across services, use compensating transactions instead of 2PC.
+
+## Circuit Breakers
+
+Fail fast when downstream services are unhealthy. Prevents cascade failures.
+
+## Retry with Backoff
+
+Exponential backoff with jitter for transient failures. Cap max retries.
+
+## Observability
+
+Distributed tracing (OpenTelemetry) is essential. Every request needs a trace ID propagated across services.

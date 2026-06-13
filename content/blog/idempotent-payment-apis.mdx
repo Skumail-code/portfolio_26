@@ -1,0 +1,66 @@
+---
+title: "Designing Idempotent Payment APIs"
+description: "Why idempotency keys matter in payment systems and how to implement them correctly."
+date: "2025-03-15"
+category: "System Design"
+published: true
+---
+
+Payment APIs must be idempotent. Network failures, client retries, and webhook duplicates all create scenarios where the same payment intent gets submitted multiple times.
+
+## The Idempotency Key Pattern
+
+Clients send a unique `Idempotency-Key` header with each payment request:
+
+```
+POST /v1/payments
+Idempotency-Key: 550e8400-e29b-41d4-a716-446655440000
+```
+
+The server stores the key with the response. Subsequent requests with the same key return the cached response without reprocessing.
+
+## Implementation
+
+```go
+type IdempotencyRecord struct {
+    Key       string
+    Response  []byte
+    Status    int
+    CreatedAt time.Time
+}
+
+func (s *PaymentService) ProcessPayment(ctx context.Context, key string, req PaymentRequest) (*PaymentResponse, error) {
+    if record, err := s.store.Get(ctx, key); err == nil {
+        return unmarshalResponse(record)
+    }
+    
+    // Acquire lock to prevent race conditions
+    lock, err := s.locker.Acquire(ctx, "idempotency:"+key, 30*time.Second)
+    if err != nil {
+        return nil, err
+    }
+    defer lock.Release()
+    
+    // Double-check after acquiring lock
+    if record, err := s.store.Get(ctx, key); err == nil {
+        return unmarshalResponse(record)
+    }
+    
+    result, err := s.processPayment(ctx, req)
+    s.store.Set(ctx, key, result, 24*time.Hour)
+    return result, err
+}
+```
+
+## Storage Considerations
+
+- Store idempotency keys in Redis with TTL (24-72 hours)
+- Include request hash to detect key reuse with different payloads
+- Return `409 Conflict` if the same key is used with different request bodies
+
+## Key Takeaways
+
+- Every mutating payment endpoint needs idempotency
+- Use distributed locks to handle concurrent retries
+- TTL your idempotency records appropriately
+- Log idempotency hits for debugging duplicate submissions

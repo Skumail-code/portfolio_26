@@ -1,0 +1,38 @@
+---
+title: "Docker Deployments"
+description: "Multi-stage builds and production container orchestration."
+date: "2025-02-15"
+published: true
+---
+
+## Multi-Stage Builds
+
+```dockerfile
+FROM golang:1.22-alpine AS builder
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 go build -o server ./cmd/server
+
+FROM alpine:3.19
+RUN apk --no-cache add ca-certificates
+COPY --from=builder /app/server /server
+EXPOSE 8080
+CMD ["/server"]
+```
+
+## Health Checks
+
+```dockerfile
+HEALTHCHECK --interval=30s --timeout=3s \
+  CMD wget -qO- http://localhost:8080/health || exit 1
+```
+
+## Non-Root User
+
+Always run containers as non-root. Create a dedicated user in the Dockerfile.
+
+## Image Size
+
+Alpine base images, static binaries, `.dockerignore` for `node_modules` and `.git`.

@@ -1,0 +1,36 @@
+---
+title: "API Design"
+description: "Principles for designing RESTful APIs that scale."
+date: "2025-05-01"
+published: true
+---
+
+## Versioning
+
+Use URL versioning (`/v1/`) for breaking changes. Never break existing clients without a migration path.
+
+## Error Contracts
+
+Return consistent error shapes:
+
+```json
+{
+  "error": {
+    "code": "PAYMENT_FAILED",
+    "message": "Insufficient funds",
+    "details": {}
+  }
+}
+```
+
+## Pagination
+
+Cursor-based pagination over offset for large datasets. Offsets degrade as tables grow.
+
+## Idempotency
+
+All `POST` mutations that create resources should accept idempotency keys. This is non-negotiable for payment APIs.
+
+## Rate Limiting
+
+Return `429` with `Retry-After` header. Document limits in API docs.

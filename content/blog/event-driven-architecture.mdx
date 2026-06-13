@@ -1,0 +1,57 @@
+---
+title: "Event-Driven Architecture for Microservices"
+description: "When to use events, how to handle failures, and patterns for maintaining consistency."
+date: "2025-02-20"
+category: "Distributed Systems"
+published: true
+---
+
+Event-driven architecture decouples services but introduces new complexity around ordering, delivery guarantees, and failure handling.
+
+## When Events Make Sense
+
+Use events when:
+
+- Services need loose coupling
+- Multiple consumers react to the same state change
+- You need audit trails of what happened
+- Async processing is acceptable
+
+Avoid events when you need synchronous consistency or immediate read-after-write guarantees.
+
+## Delivery Guarantees
+
+Most systems provide **at-least-once** delivery. Design consumers to be idempotent:
+
+```go
+func (h *Handler) HandlePaymentCompleted(ctx context.Context, event PaymentCompleted) error {
+    // Check if already processed
+    exists, _ := h.store.EventProcessed(ctx, event.ID)
+    if exists {
+        return nil // Already handled
+    }
+    
+    if err := h.processEvent(ctx, event); err != nil {
+        return err
+    }
+    
+    return h.store.MarkEventProcessed(ctx, event.ID)
+}
+```
+
+## The Outbox Pattern
+
+Don't publish events inside database transactions directly. Use the transactional outbox:
+
+1. Write business data + outbox record in same transaction
+2. Background worker polls outbox and publishes events
+3. Mark outbox records as published
+
+This guarantees events are published if and only if the transaction commits.
+
+## Key Takeaways
+
+- Design for at-least-once delivery
+- Make all event handlers idempotent
+- Use transactional outbox for reliable publishing
+- Monitor consumer lag and dead letter queues
