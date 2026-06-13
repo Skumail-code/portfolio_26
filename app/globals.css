@@ -13,6 +13,11 @@
   --accent: #00d4aa;
   --accent-dim: rgba(0, 212, 170, 0.08);
   --live: #00d4aa;
+  --font-sans-stack:
+    "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-mono-stack:
+    "SFMono-Regular", "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
 }
 
 @theme inline {
@@ -28,9 +33,9 @@
   --color-accent: var(--accent);
   --color-accent-dim: var(--accent-dim);
   --color-live: var(--live);
-  --font-sans: var(--font-space-grotesk);
-  --font-display: var(--font-space-grotesk);
-  --font-mono: var(--font-jetbrains-mono);
+  --font-sans: var(--font-sans-stack);
+  --font-display: var(--font-sans-stack);
+  --font-mono: var(--font-mono-stack);
 }
 
 * {

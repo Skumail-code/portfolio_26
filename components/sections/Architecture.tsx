@@ -22,6 +22,7 @@ const supportingNodes = [
   {
     title: "Redis",
     description: "Idempotency keys and cached duplicate responses.",
+    emphasis: false,
   },
   {
     title: "PostgreSQL",
@@ -31,6 +32,7 @@ const supportingNodes = [
   {
     title: "Webhook Dispatcher",
     description: "Async delivery with retries and dead-letter fallback.",
+    emphasis: false,
   },
 ] as const;
 

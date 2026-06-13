@@ -1,22 +1,9 @@
 import type { Metadata } from "next";
-import { JetBrains_Mono, Space_Grotesk } from "next/font/google";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { siteConfig } from "@/lib/site";
 import { getCanonicalUrl, getPersonJsonLd, getWebsiteJsonLd } from "@/lib/seo";
 import "./globals.css";
-
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-space-grotesk",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-jetbrains-mono",
-  subsets: ["latin"],
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
@@ -75,10 +62,7 @@ export default function RootLayout({
   const jsonLd = [getPersonJsonLd(), getWebsiteJsonLd()];
 
   return (
-    <html
-      lang="en"
-      className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} h-full antialiased`}
-    >
+    <html lang="en" className="h-full antialiased">
       <head>
         {jsonLd.map((schema) => (
           <script
